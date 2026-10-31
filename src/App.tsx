@@ -40,7 +40,8 @@ export default function App() {
             wazeUrl: DEFAULT_WEDDING_DETAILS.wazeUrl,
             uberUrl: DEFAULT_WEDDING_DETAILS.uberUrl,
             songUrl: DEFAULT_WEDDING_DETAILS.songUrl,
-            songStartSeconds: 45,
+            songStartSeconds: 25,
+            googleSheetWebhookUrl: DEFAULT_WEDDING_DETAILS.googleSheetWebhookUrl,
           };
         }
       }
@@ -117,10 +118,10 @@ export default function App() {
       {/* Animated Floating Rose Petals and Shimmer Stars */}
       <PetalBackground />
 
-      {/* Background Audio Controller ("الليلة دي" - عمرو دياب من 0:45) */}
+      {/* Background Audio Controller ("الليلة دي" - عمرو دياب من 0:25) */}
       <AudioPlayer
         customAudioUrl={details.songUrl}
-        startSeconds={details.songStartSeconds || 45}
+        startSeconds={details.songStartSeconds || 25}
         autoPlayTrigger={shouldAutoPlayMusic}
       />
 

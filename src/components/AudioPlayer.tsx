@@ -9,7 +9,7 @@ interface AudioPlayerProps {
 
 export const AudioPlayer: React.FC<AudioPlayerProps> = ({
   customAudioUrl = '/assets/audio/wedding-song.weba',
-  startSeconds = 45,
+  startSeconds = 25,
   autoPlayTrigger = false,
 }) => {
   const [isPlaying, setIsPlaying] = useState<boolean>(false);

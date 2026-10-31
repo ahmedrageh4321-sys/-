@@ -78,8 +78,8 @@ export const DEFAULT_WEDDING_DETAILS: WeddingDetails = {
   songTitle: 'الليلة دي',
   songArtist: 'عمرو دياب',
   songUrl: '/assets/audio/wedding-song.weba',
-  songStartSeconds: 45,
-  googleSheetWebhookUrl: '',
+  songStartSeconds: 25,
+  googleSheetWebhookUrl: 'https://script.google.com/macros/s/AKfycbwjfou_3Y2_cPvNcb-l3C2bbmf9AyRnLAhDwlQ-4wuqotDhJhvjL9KxQSt_cL8ynrIH/exec',
   customMessage: 'فرحتنا لا تكتمل إلا بوجودكم بيننا.. أهلاً ومرحباً بكم في ليلة العمر',
 };
 
@@ -264,12 +264,12 @@ export async function sendToGoogleSheetWebhook(
   }
 
   try {
-    // Mode no-cors is standard for Google Apps Script webhooks
+    // Mode no-cors with text/plain is standard and foolproof for Google Apps Script webhooks
     await fetch(webhookUrl, {
       method: 'POST',
       mode: 'no-cors',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'text/plain;charset=utf-8',
       },
       body: JSON.stringify(payload),
     });

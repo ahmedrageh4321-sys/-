@@ -17,51 +17,62 @@ export const GoogleSheetsGuideModal: React.FC<GoogleSheetsGuideModalProps> = ({
 
   if (!isOpen) return null;
 
-  const appsScriptCode = `// 1. افتح شيت جوجل جديد (Google Sheet)
-// 2. من القائمة العلوية اضغط على Extensions ثم Apps Script
-// 3. الصق هذا الكود كاملاً واحفظ المشروع:
-
-function doPost(e) {
-  try {
-    var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
-    var data = JSON.parse(e.postData.contents);
-    
-    // إذا كان السطر الأول فارغاً، نضع العناوين
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(["النوع", "الاسم", "حالة الحضور / الصلة", "عدد الأفراد", "الرسالة والملاحظات", "التاريخ"]);
-    }
-    
-    if (data.type === "RSVP") {
-      sheet.appendRow([
-        "تأكيد حضور",
-        data.guestName,
-        data.attending === "yes" ? "سيحضر" : "يعتذر",
-        data.guestCount || 0,
-        data.dietaryOrNotes || "-",
-        data.submittedAt || new Date().toLocaleString()
-      ]);
-    } else {
-      sheet.appendRow([
-        "تهنئة",
-        data.authorName,
-        data.relation || "-",
-        "-",
-        data.message,
-        data.createdAt || new Date().toLocaleString()
-      ]);
-    }
-    
-    return ContentService.createTextOutput(JSON.stringify({status: "success"}))
-      .setMimeType(ContentService.MimeType.JSON);
-  } catch (err) {
-    return ContentService.createTextOutput(JSON.stringify({status: "error", error: err.message}))
-      .setMimeType(ContentService.MimeType.JSON);
+  const appsScriptCode = `function doPost(e) {
+  var sheet = SpreadsheetApp.getActiveSpreadsheet().getActiveSheet();
+  
+  if (sheet.getLastRow() === 0) {
+    sheet.appendRow(["التاريخ والوقت", "نوع البيانات", "الاسم", "صلة القرابة / حالة الحضور", "الرسالة / تفاصيل الحضور", "الرمز"]);
   }
+  
+  var data = {};
+  if (e && e.postData && e.postData.contents) {
+    try {
+      data = JSON.parse(e.postData.contents);
+    } catch (err) {
+      data = e.parameter || {};
+    }
+  } else if (e && e.parameter) {
+    data = e.parameter;
+  } else {
+    data = {
+      type: "COMMENT",
+      authorName: "تجربة فحص السكربت",
+      relation: "فحص",
+      message: "تم فحص السكربت بنجاح وتجهيز الشيت!",
+      reaction: "🎉"
+    };
+  }
+  
+  var now = Utilities.formatDate(new Date(), "Africa/Cairo", "yyyy-MM-dd HH:mm:ss");
+  
+  if (data.type === "RSVP" || data.type === "rsvp") {
+    sheet.appendRow([
+      now,
+      "تأكيد حضور (RSVP)",
+      data.guestName || "غير محدد",
+      data.attending === "yes" ? "سأحضر بكل سرور ✨" : "أعتذر بكل ود 🌹",
+      "عدد الأفراد: " + (data.guestCount || 1) + (data.dietaryOrNotes ? " - ملاحظات: " + data.dietaryOrNotes : ""),
+      "-"
+    ]);
+  } else {
+    sheet.appendRow([
+      now,
+      "تهنئة للعروسين 💌",
+      data.authorName || "فاعل خير",
+      data.relation || "صديق العائلة",
+      data.message || "",
+      data.reaction || "❤️"
+    ]);
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({ result: "success" }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
-// 4. اضغط على زر Deploy (نشر) -> New deployment
-// 5. اختر Web app واجعل Who has access: "Anyone"
-// 6. انسخ Web app URL وضعه في خانة Webhook في الدعوة!`;
+// دالة تجريبية لاختبار الشيت يدوياً عند الضغط على Run
+function test() {
+  doPost(null);
+}`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(appsScriptCode);
